@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Paper.Services;
 
 namespace Paper
 {
@@ -20,10 +14,36 @@ namespace Paper
     public partial class ChatWithAIWindow : Window
     {
         private const string DefaultInputText = "Type your message...";
+        private readonly ChatService chatService;
 
         public ChatWithAIWindow()
         {
             InitializeComponent();
+
+            // Initialize chat service with API key
+            string apiKey = ConfigurationManager.AppSettings["GeminiApiKey"];
+            chatService = new ChatService(apiKey);
+
+            // Disable input until initial message is received
+            MessageInput.IsEnabled = false;
+            InitializeChat();
+        }
+
+        private async void InitializeChat()
+        {
+            try
+            {
+                string response = await chatService.SendMessageAsync(
+                    "You are an AI assistant helping users learn from PDF documents. " +
+                    "Please provide a friendly greeting and offer to help."
+                );
+                AddAIMessage(response);
+                MessageInput.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error initializing chat: {ex.Message}");
+            }
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -49,14 +69,32 @@ namespace Paper
             }
         }
 
-        private void SendMessage_Click(object sender, RoutedEventArgs e)
+        private async void SendMessage_Click(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(MessageInput.Text) && MessageInput.Text != DefaultInputText)
             {
-                AddUserMessage(MessageInput.Text);
-                // TODO: Add AI response logic
-                AddAIMessage("I received your message: " + MessageInput.Text);
+                string userMessage = MessageInput.Text;
                 MessageInput.Text = string.Empty;
+                MessageInput.IsEnabled = false;
+
+                // Add user message to chat
+                AddUserMessage(userMessage);
+
+                try
+                {
+                    // Get AI response
+                    string response = await chatService.SendMessageAsync(userMessage);
+                    AddAIMessage(response);
+                }
+                catch (Exception ex)
+                {
+                    AddAIMessage($"Error: {ex.Message}");
+                }
+                finally
+                {
+                    MessageInput.IsEnabled = true;
+                    MessageInput.Focus();
+                }
             }
         }
 
@@ -108,6 +146,21 @@ namespace Paper
             messageBorder.Child = stackPanel;
             ChatMessages.Children.Add(messageBorder);
             MessageScroller.ScrollToBottom();
+        }
+
+        private void MessageInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && !e.KeyboardDevice.IsKeyDown(Key.LeftShift))
+            {
+                e.Handled = true;
+                SendMessage_Click(sender, e);
+            }
+        }
+
+        // Add loading indicator
+        private void ShowLoadingIndicator(bool show)
+        {
+            LoadingIndicator.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }
