@@ -118,25 +118,7 @@
                       Margin="20,10"
                       x:Name="MessageScroller">
             <StackPanel x:Name="ChatMessages">
-                <!-- AI Message -->
-                <Border Style="{StaticResource AIMessage}">
-                    <StackPanel>
-                        <TextBlock Text="AI Assistant"
-                                   FontSize="12"
-                                   Foreground="#757575"
-                                   Margin="0,0,0,5"/>
-                        <TextBlock Text="Hello! I'm your AI assistant. How can I help you learn from your PDF today?"
-                                   TextWrapping="Wrap"
-                                   Foreground="#424242"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- User Message -->
-                <Border Style="{StaticResource UserMessage}">
-                    <TextBlock Text="Hi! Can you help me understand this document?"
-                               TextWrapping="Wrap"
-                               Foreground="White"/>
-                </Border>
+                <!-- Remove default AI and User messages -->
             </StackPanel>
         </ScrollViewer>
 
@@ -176,7 +158,8 @@
                              FontSize="14"
                              Text="Type your message..."
                              GotFocus="MessageInput_GotFocus"
-                             LostFocus="MessageInput_LostFocus"/>
+                             LostFocus="MessageInput_LostFocus"
+                             KeyDown="MessageInput_KeyDown"/>
                 </Border>
 
                 <!-- Send Button -->

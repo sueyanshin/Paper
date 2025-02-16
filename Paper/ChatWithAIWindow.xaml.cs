@@ -33,16 +33,23 @@ namespace Paper
         {
             try
             {
+                MessageInput.IsEnabled = false;
+                ShowLoadingIndicator(true); // Show loading during initialization
+
                 string response = await chatService.SendMessageAsync(
-                    "You are an AI assistant helping users learn from PDF documents. " +
-                    "Please provide a friendly greeting and offer to help."
+                    "You are an AI assistant helping students to learn. " +
+                    "Please provide a friendly greeting and offer to help.Don't tell your name."
                 );
                 AddAIMessage(response);
-                MessageInput.IsEnabled = true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error initializing chat: {ex.Message}");
+            }
+            finally
+            {
+                ShowLoadingIndicator(false); // Hide loading after initialization
+                MessageInput.IsEnabled = true;
             }
         }
 
@@ -76,6 +83,7 @@ namespace Paper
                 string userMessage = MessageInput.Text;
                 MessageInput.Text = string.Empty;
                 MessageInput.IsEnabled = false;
+                ShowLoadingIndicator(true); // Show loading before sending message
 
                 // Add user message to chat
                 AddUserMessage(userMessage);
@@ -92,6 +100,7 @@ namespace Paper
                 }
                 finally
                 {
+                    ShowLoadingIndicator(false); // Hide loading after response
                     MessageInput.IsEnabled = true;
                     MessageInput.Focus();
                 }
@@ -160,7 +169,10 @@ namespace Paper
         // Add loading indicator
         private void ShowLoadingIndicator(bool show)
         {
-            LoadingIndicator.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (LoadingIndicator != null) // Add null check
+            {
+                LoadingIndicator.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
     }
 }
