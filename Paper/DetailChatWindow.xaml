@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paper"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        
         mc:Ignorable="d"
          WindowState="Maximized"
         Icon="/Images/logo.ico"
@@ -110,8 +112,8 @@
                     CornerRadius="10"
                     Margin="10"
                     Effect="{DynamicResource MaterialDesignShadowDepth2}">
-                <DocumentViewer x:Name="PdfViewer"
-                                Margin="5"/>
+              <wv2:WebView2 x:Name="pdfViewer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
             </Border>
 
             <!-- Right Panel with Tabs -->

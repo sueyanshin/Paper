@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
-using PdfiumViewer;
+using Paper.Services;
+using UglyToad.PdfPig;
 
 namespace Paper
 {
@@ -11,59 +10,42 @@ namespace Paper
     /// </summary>
     public partial class DetailChatWindow : Window
     {
-        private PdfViewer pdfViewer;
+        //private PdfViewer pdfViewer;
+
 
         public DetailChatWindow()
         {
             InitializeComponent();
-            // LoadPdfViewer();
+            LoadPdf("C:\\Users\\Acer\\Downloads\\kt.pdf");
+            Generate();
+
+        }
+        private async void LoadPdf(string filePath)
+        {
+            await pdfViewer.EnsureCoreWebView2Async(null);
+            pdfViewer.CoreWebView2.Navigate(filePath);
+        }
+        private string ExtractTextFromPdf(string filePath)
+        {
+            using (PdfDocument document = PdfDocument.Open(filePath))
+            {
+                string text = "";
+                foreach (var page in document.GetPages())
+                {
+                    text += page.Text;
+                }
+                return text;
+            }
         }
 
-        // private void LoadPdfViewer()
-        // {
-        //     try
-        //     {
-        //         // Create PDF viewer
-        //         pdfViewer = new PdfViewer();
-        //         PdfHost.Child = pdfViewer;
+        private async void Generate()
+        {
+            string pdfText = ExtractTextFromPdf("C:\\Users\\Acer\\Downloads\\kt.pdf");
+            GeminiService geminiService = new GeminiService();
 
-        //         // Load sample PDF from resources or a file
-        //         var samplePdfPath = "Resources/sample.pdf"; // Add your sample PDF to the project
-        //         if (File.Exists(samplePdfPath))
-        //         {
-        //             using (var stream = File.OpenRead(samplePdfPath))
-        //             {
-        //                 pdfViewer.Document = PdfDocument.Load(stream);
-        //             }
-        //         }
-        //         else
-        //         {
-        //             MessageBox.Show("Sample PDF file not found.");
-        //         }
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         MessageBox.Show($"Error loading PDF: {ex.Message}");
-        //     }
-        // }
-
-        //private void BackButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var mySpaceWindow = new MySpaceWindow();
-        //    mySpaceWindow.Show();
-        //    this.Close();
-        //}
-
-        // protected override void OnClosed(EventArgs e)
-        // {
-        //     base.OnClosed(e);
-        //     if (pdfViewer != null)
-        //     {
-        //         pdfViewer.Document?.Dispose();
-        //         pdfViewer.Dispose();
-        //     }
-        // }
-
+            string summary = await geminiService.GetSummaryFromGemini(pdfText);
+            SummaryContent.Text = summary;
+        }
 
         private void FlashcardPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
