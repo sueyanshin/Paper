@@ -81,7 +81,7 @@ namespace Paper.Services
                         {
                             return new Content
                             {
-                                ContentId = reader.GetInt32(reader.GetOrdinal("Cid")),
+                                ContentId = reader.GetInt32(reader.GetOrdinal("CId")),
                                 UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
                                 FileName = reader.GetString(reader.GetOrdinal("FileName")),
                                 Summary = reader.GetString(reader.GetOrdinal("Summary")),
@@ -92,6 +92,163 @@ namespace Paper.Services
                 }
             }
             return null;
+        }
+
+        public async Task<List<Content>> GetContentsByUserId(int userId)
+        {
+            var contents = new List<Content>();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"SELECT Cid, FileName, Summary, CreatedAt 
+                              FROM Contents 
+                              WHERE UserId = @UserId 
+                              ORDER BY CreatedAt DESC";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            contents.Add(new Content
+                            {
+                                ContentId = reader.GetInt32(reader.GetOrdinal("CId")),
+                                FileName = reader.GetString(reader.GetOrdinal("FileName")),
+                                Summary = reader.GetString(reader.GetOrdinal("Summary")),
+                                CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt")).ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return contents;
+        }
+
+        public async Task<Content> GetContentById(int contentId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = @"SELECT CId, FileName, Summary, CreatedAt 
+                              FROM Contents 
+                              WHERE CId = @ContentId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ContentId", contentId);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return new Content
+                            {
+                                ContentId = reader.GetInt32(reader.GetOrdinal("CId")),
+                                FileName = reader.GetString(reader.GetOrdinal("FileName")),
+                                Summary = reader.GetString(reader.GetOrdinal("Summary")),
+                                CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt")).ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        public async Task<List<Flashcard>> GetFlashcardsByContentId(int contentId)
+        {
+            var flashcards = new List<Flashcard>();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                string sql = "SELECT FId, Question, Answer FROM Flashcards WHERE CId = @ContentId";
+
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ContentId", contentId);
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            flashcards.Add(new Flashcard
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("FId")),
+                                Question = reader.GetString(reader.GetOrdinal("Question")),
+                                Answer = reader.GetString(reader.GetOrdinal("Answer")),
+                                IsFlipped = false
+                            });
+                        }
+                    }
+                }
+            }
+            return flashcards;
+        }
+
+        public async Task DeleteContent(int contentId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete flashcards first (due to foreign key constraint)
+                        string deleteFlashcardsSQL = "DELETE FROM Flashcards WHERE CId = @ContentId";
+                        using (SqlCommand cmd = new SqlCommand(deleteFlashcardsSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@ContentId", contentId);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Get file name before deleting content
+                        string getFileNameSQL = "SELECT FileName FROM Contents WHERE CId = @ContentId";
+                        string fileName = "";
+                        using (SqlCommand cmd = new SqlCommand(getFileNameSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@ContentId", contentId);
+                            fileName = (string)await cmd.ExecuteScalarAsync();
+                        }
+
+                        // Delete content
+                        string deleteContentSQL = "DELETE FROM Contents WHERE CId = @ContentId";
+                        using (SqlCommand cmd = new SqlCommand(deleteContentSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@ContentId", contentId);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Delete PDF file
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            string uploadDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads");
+                            string filePath = Path.Combine(uploadDir, fileName);
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
         }
     }
 }
