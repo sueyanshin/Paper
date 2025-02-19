@@ -117,7 +117,7 @@ namespace Paper
             card.Child = grid;
             card.MouseLeftButtonDown += (s, e) =>
             {
-                var detailWindow = new DetailChatWindow(user, "");
+                var detailWindow = new DetailChatWindow(user.UserId, "");
                 detailWindow.Show();
                 this.Close();
             };

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -23,20 +24,19 @@ namespace Paper
         private readonly GeminiService geminiService;
         private string pdfText;
         private User user;
+        private readonly DatabaseService databaseService;
+        private int userId; // Set this when user logs in
 
-        public DetailChatWindow(User user, string filePath)
+        public DetailChatWindow(int userId, string filePath)
         {
             InitializeComponent();
-            this.user = user;
             this.filePath = filePath;
+            this.userId = userId;
             geminiService = new GeminiService();
+            databaseService = new DatabaseService();
             flashcards = new List<Flashcard>();
             LoadPdf(filePath);
-            GenerateSummary();
-            // Generate flashcards when window loads
-            Loaded += async (s, e) => await GenerateFlashcards();
-
-
+            Loaded += async (s, e) => await GenerateAndSaveContent();
         }
         private async void LoadPdf(string filePath)
         {
@@ -56,43 +56,42 @@ namespace Paper
             }
         }
 
-        private async void GenerateSummary()
-        {
-            // Get Text from PDF
-            string pdfText = ExtractTextFromPdf(filePath);
-            GeminiService geminiService = new GeminiService();
-
-            //Generate summary
-            string summary = await geminiService.GetSummaryFromGemini(pdfText);
-            SummaryContent.Text = summary;
-        }
-        private async Task GenerateFlashcards()
+        private async Task GenerateAndSaveContent()
         {
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
-                QuestionText.Text = "Generating flashcards...";
 
-                // Get text from pdf
+                // Extract PDF text
                 pdfText = ExtractTextFromPdf(filePath);
 
-                // Generate flashcards
+                // Generate summary and flashcards
+                var summary = await geminiService.GetSummaryFromGemini(pdfText);
                 flashcards = await geminiService.GenerateFlashcardsFromText(pdfText);
-                currentFlashcardIndex = 0;
 
+                // Create content object
+                var content = new Content
+                {
+                    UserId = userId,
+                    FileName = Path.GetFileName(filePath),
+                    Summary = summary,
+                    Flashcards = flashcards
+                };
+
+                // Save to database
+                int contentId = await databaseService.SaveContent(content, filePath);
+                await databaseService.SaveFlashcards(contentId, flashcards);
+
+                // Update UI
+                SummaryContent.Text = summary;
                 if (flashcards.Count > 0)
                 {
                     UpdateFlashcardDisplay();
                 }
-                else
-                {
-                    QuestionText.Text = "No flashcards could be generated";
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error generating flashcards: {ex.Message}");
-                QuestionText.Text = "Failed to generate flashcards";
+                MessageBox.Show($"Error generating content: {ex.Message}");
             }
             finally
             {

@@ -37,7 +37,7 @@ namespace Paper
         {
             if (!string.IsNullOrEmpty(selectedFilePath))
             {
-                var detailWindow = new DetailChatWindow(user, selectedFilePath);
+                var detailWindow = new DetailChatWindow(user.UserId, selectedFilePath);
                 detailWindow.Show();
                 this.Close();
             }

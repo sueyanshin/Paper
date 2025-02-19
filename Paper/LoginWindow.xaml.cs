@@ -11,7 +11,6 @@ namespace Paper
     /// </summary>
     public partial class LoginWindow : Window
     {
-        private readonly string connectionString = "Data Source=SYS\\SQLEXPRESS;Initial Catalog=paper;Integrated Security=True;";
         private readonly AuthService authService;
         public LoginWindow()
         {
