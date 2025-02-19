@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paper"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        
         mc:Ignorable="d"
-         WindowState="Maximized"
+        WindowState="Maximized"
         Icon="/Images/logo.ico"
         Title="Paper"
         Height="700"
@@ -86,8 +85,7 @@
         <!-- Header Section -->
         <Border Height="60"
                 VerticalAlignment="Top"
-                Background="White"
-                Effect="{DynamicResource MaterialDesignShadowDepth1}">
+                Background="White">
             <Grid>
                 <Button Content="← Back"
                         HorizontalAlignment="Left"
@@ -110,17 +108,17 @@
                     HorizontalAlignment="Left"
                     Background="White"
                     CornerRadius="10"
-                    Margin="10"
-                    Effect="{DynamicResource MaterialDesignShadowDepth2}">
-              <wv2:WebView2 x:Name="pdfViewer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                    Margin="10">
+                <wv2:WebView2 x:Name="pdfViewer"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"/>
 
             </Border>
 
             <!-- Right Panel with Tabs -->
             <Border Margin="620,10,10,10"
                     Background="White"
-                    CornerRadius="10"
-                    Effect="{DynamicResource MaterialDesignShadowDepth2}">
+                    CornerRadius="10">
                 <TabControl BorderThickness="0">
                     <TabControl.Resources>
                         <Style TargetType="TabPanel">
@@ -216,15 +214,14 @@
 
                                 <!-- Send Button -->
                                 <Button Grid.Column="1"
-        Width="80"
-        Height="40"
-        Margin="10,0,0,0"
-        >
+                                        Width="80"
+                                        Height="40"
+                                        Margin="10,0,0,0">
                                     <Path Data="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-          Fill="#ffffff"
-          Width="24"
-          Height="24"
-          Stretch="Uniform"/>
+                                          Fill="#ffffff"
+                                          Width="24"
+                                          Height="24"
+                                          Stretch="Uniform"/>
                                 </Button>
                             </Grid>
                         </Grid>
@@ -245,7 +242,6 @@
                                     BorderBrush="#E0E0E0"
                                     BorderThickness="1"
                                     CornerRadius="15"
-                                    Effect="{DynamicResource MaterialDesignShadowDepth1}"
                                     Cursor="Hand">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -263,17 +259,17 @@
                                     <!-- Flashcard Content -->
                                     <Grid x:Name="FlashcardPanel"
                                           Grid.Row="1"
-                                          MouseLeftButtonDown="FlashcardPanel_MouseLeftButtonDown"
-                                          >
+                                          MouseLeftButtonDown="FlashcardPanel_MouseLeftButtonDown">
                                         <StackPanel HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Margin="40">
                                             <!-- Question Side -->
                                             <TextBlock x:Name="QuestionText"
-                                                       Text="What is generative AI?"
                                                        TextAlignment="Center"
                                                        FontSize="24"
                                                        FontWeight="Medium"
+                                                        TextWrapping="Wrap"
+                                                        MaxWidth="400"
                                                        Foreground="#FF0056FF"/>
 
                                             <!-- Answer Side (Initially Hidden) -->
@@ -281,8 +277,9 @@
                                                        Text="Generative AI refers to artificial intelligence systems that can create new content, such as text, images, or code, based on patterns learned from training data."
                                                        TextAlignment="Center"
                                                        FontSize="20"
+                                                        TextWrapping="Wrap"
+                                                        MaxWidth="400"
                                                        Margin="0,20,0,0"
-                                                       TextWrapping="Wrap"
                                                        Visibility="Collapsed"
                                                        Foreground="Black"/>
                                         </StackPanel>
@@ -295,21 +292,30 @@
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         Margin="0,0,0,20">
-                                <Button Content="Previous"
-                                        Width="120"
-                                        Height="40"
+                                <Button
+                                    x:Name="PrevButton"
+                                    Content="Previous"
+                                    Width="120"
+                                    Height="40"
+                                    Click="PrevButton_Click"
                                         Margin="0,0,15,0"/>
                                 <Border Background="#F0F2F5"
                                         CornerRadius="5"
                                         Padding="15,8">
-                                    <TextBlock Text="1/38"
+                                    <TextBlock
+                                        x:Name="CounterText"
+                                        Text="1/38"
+                                          Foreground="#FF0056FF"
                                                VerticalAlignment="Center"
                                                FontWeight="Medium"/>
                                 </Border>
-                                <Button Content="Next"
-                                        Width="120"
-                                        Height="40"
-                                        Margin="15,0,0,0"/>
+                                <Button
+                                    x:Name="NextButton"
+                                    Content="Next"
+                                    Width="120"
+                                    Height="40"
+                                    Margin="15,0,0,0"
+                                        Click="NextButton_Click"/>
                             </StackPanel>
                         </Grid>
                     </TabItem>
