@@ -1,16 +1,19 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Paper.Models;
 
 namespace Paper
 {
     public partial class MainWindow : Window
     {
         private string selectedFilePath;
+        private User user;
 
-        public MainWindow()
+        public MainWindow(User user)
         {
             InitializeComponent();
+            this.user = user;
         }
 
         private void BrowseFiles_Click(object sender, RoutedEventArgs e)
@@ -34,7 +37,7 @@ namespace Paper
         {
             if (!string.IsNullOrEmpty(selectedFilePath))
             {
-                var detailWindow = new DetailChatWindow(selectedFilePath);
+                var detailWindow = new DetailChatWindow(user.UserId, selectedFilePath);
                 detailWindow.Show();
                 this.Close();
             }
@@ -52,7 +55,7 @@ namespace Paper
                         MainTabControl.SelectedIndex = 0;
                         break;
                     case "MySpaceBtn":
-                        var mySpaceWindow = new MySpaceWindow();
+                        var mySpaceWindow = new MySpaceWindow(user);
                         mySpaceWindow.Show();
                         this.Close();
                         break;
@@ -68,14 +71,14 @@ namespace Paper
 
         private void TabButton2(object sender, RoutedEventArgs e)
         {
-            MySpaceWindow mySpaceWindow = new MySpaceWindow();
+            MySpaceWindow mySpaceWindow = new MySpaceWindow(user);
             mySpaceWindow.Show();
             this.Close();
         }
 
         private void TabButton3(object sender, RoutedEventArgs e)
         {
-            ChatWithAIWindow chatWithAIWindow = new ChatWithAIWindow();
+            ChatWithAIWindow chatWithAIWindow = new ChatWithAIWindow(user);
             chatWithAIWindow.Show();
             this.Close();
         }

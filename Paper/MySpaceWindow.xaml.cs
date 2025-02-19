@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Paper.Models;
 
 namespace Paper
 {
@@ -13,15 +14,18 @@ namespace Paper
     /// </summary>
     public partial class MySpaceWindow : Window
     {
-        public MySpaceWindow()
+        private User user;
+        public MySpaceWindow(User user)
         {
             InitializeComponent();
+            this.user = user;
             LoadChatHistory();
+
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow(user);
             mainWindow.Show();
             this.Close();
         }
@@ -113,7 +117,7 @@ namespace Paper
             card.Child = grid;
             card.MouseLeftButtonDown += (s, e) =>
             {
-                var detailWindow = new DetailChatWindow("");
+                var detailWindow = new DetailChatWindow(user.UserId, "");
                 detailWindow.Show();
                 this.Close();
             };

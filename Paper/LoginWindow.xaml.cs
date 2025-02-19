@@ -1,8 +1,8 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Paper.Models;
+using Paper.Services;
 
 namespace Paper
 {
@@ -11,14 +11,14 @@ namespace Paper
     /// </summary>
     public partial class LoginWindow : Window
     {
-        private readonly string connectionString = "Data Source=SYS\\SQLEXPRESS;Initial Catalog=paper;Integrated Security=True;";
-
+        private readonly AuthService authService;
         public LoginWindow()
         {
             InitializeComponent();
+            authService = new AuthService();
         }
 
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             string email = EmailTextBox.Text;
             string password = PasswordBox.Password;
@@ -29,25 +29,38 @@ namespace Paper
                 return;
             }
 
-            SqlConnection conn = new SqlConnection(connectionString);
-            conn.Open();
-            string query = "SELECT COUNT(1) FROM Users WHERE Email = @Email and Password = @Password";
-            SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Email", email);
-            cmd.Parameters.AddWithValue("@Password", password);
-            int count = Convert.ToInt32(cmd.ExecuteScalar());
-            conn.Close();
+            //SqlConnection conn = new SqlConnection(connectionString);
+            //conn.Open();
+            //string query = "SELECT COUNT(1) FROM Users WHERE Email = @Email and Password = @Password";
+            //SqlCommand cmd = new SqlCommand(query, conn);
+            //cmd.Parameters.AddWithValue("@Email", email);
+            //cmd.Parameters.AddWithValue("@Password", password);
+            //int count = Convert.ToInt32(cmd.ExecuteScalar());
+            //conn.Close();
 
-            if (count == 1)
+            //if (count == 1)
+            //{
+            //    MessageBox.Show("Login Successful!");
+            //    this.Hide();
+            //    MainWindow mainForm = new MainWindow();
+            //    mainForm.Show();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Invalid Username or Password.");
+            //}
+
+            User user = await authService.Login(email, password);
+            if (user != null)
             {
-                MessageBox.Show("Login Successful!");
-                this.Hide();
-                MainWindow mainForm = new MainWindow();
-                mainForm.Show();
+                // Create main window with user information
+                var mainWindow = new MainWindow(user);
+                mainWindow.Show();
+                this.Close();
             }
             else
             {
-                MessageBox.Show("Invalid Username or Password.");
+                MessageBox.Show("Invalid username or password");
             }
         }
 
