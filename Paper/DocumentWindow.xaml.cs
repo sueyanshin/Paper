@@ -7,95 +7,84 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Paper.Models;
 using Paper.Services;
-using UglyToad.PdfPig;
-
 namespace Paper
 {
     /// <summary>
-    /// Interaction logic for DetailChatWindow.xaml
+    /// Interaction logic for DocumentWindow.xaml
     /// </summary>
-    public partial class DetailChatWindow : Window
+    public partial class DocumentWindow : Window
     {
-
-        private string filePath;
+        private int contentId;
         private List<Flashcard> flashcards;
         private int currentFlashcardIndex = 0;
+        private readonly DatabaseService databaseService;
+        private int userId;
+        private Content content;
         private readonly GeminiService geminiService;
         private string pdfText;
         private User user;
-        private readonly DatabaseService databaseService;
-        private int userId; // Set this when user logs in
 
-        public DetailChatWindow(User user, string filePath)
+        public DocumentWindow(User user, int contentId)
         {
             InitializeComponent();
-            this.filePath = filePath;
+            this.contentId = contentId;
             this.user = user;
-            this.userId = user.UserId;
-            geminiService = new GeminiService();
             databaseService = new DatabaseService();
+            geminiService = new GeminiService();
             flashcards = new List<Flashcard>();
-            LoadPdf(filePath);
-            Loaded += async (s, e) => await GenerateAndSaveContent();
-        }
-        private async void LoadPdf(string filePath)
-        {
-            await pdfViewer.EnsureCoreWebView2Async(null);
-            pdfViewer.CoreWebView2.Navigate(filePath);
-        }
-        private string ExtractTextFromPdf(string filePath)
-        {
-            using (PdfDocument document = PdfDocument.Open(filePath))
-            {
-                string text = "";
-                foreach (var page in document.GetPages())
-                {
-                    text += page.Text;
-                }
-                return text;
-            }
+            Loaded += async (s, e) => await LoadStoredContent();
         }
 
-        private async Task GenerateAndSaveContent()
+        private async Task LoadStoredContent()
         {
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
 
-                // Extract PDF text
-                pdfText = ExtractTextFromPdf(filePath);
-
-                // Generate summary and flashcards
-                var summary = await geminiService.GetSummaryFromGemini(pdfText);
-                flashcards = await geminiService.GenerateFlashcardsFromText(pdfText);
-
-                // Create content object
-                var content = new Content
+                // Get content from database
+                content = await databaseService.GetContentById(contentId);
+                if (content != null)
                 {
-                    UserId = userId,
-                    FileName = Path.GetFileName(filePath),
-                    Summary = summary,
-                    Flashcards = flashcards
-                };
+                    // Load PDF
+                    string uploadDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads");
+                    string pdfPath = Path.Combine(uploadDir, content.FileName);
+                    LoadPdf(pdfPath);
 
-                // Save to database
-                int contentId = await databaseService.SaveContent(content, filePath);
-                await databaseService.SaveFlashcards(contentId, flashcards);
+                    // Load flashcards
+                    flashcards = await databaseService.GetFlashcardsByContentId(contentId);
 
-                // Update UI
-                SummaryContent.Text = summary;
-                if (flashcards.Count > 0)
+                    // Update UI
+                    SummaryContent.Text = content.Summary;
+                    if (flashcards.Count > 0)
+                    {
+                        UpdateFlashcardDisplay();
+                    }
+                }
+                else
                 {
-                    UpdateFlashcardDisplay();
+                    MessageBox.Show("Content not found in database.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error generating content: {ex.Message}");
+                MessageBox.Show($"Error loading content: {ex.Message}");
             }
             finally
             {
                 Mouse.OverrideCursor = null;
+            }
+        }
+
+        private async void LoadPdf(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                await pdfViewer.EnsureCoreWebView2Async(null);
+                pdfViewer.CoreWebView2.Navigate(filePath);
+            }
+            else
+            {
+                MessageBox.Show("PDF file not found in the Uploads folder.");
             }
         }
 
@@ -123,22 +112,10 @@ namespace Paper
             CounterText.Text = $"{currentFlashcardIndex + 1}/{flashcards.Count}";
             PrevButton.IsEnabled = currentFlashcardIndex > 0;
             NextButton.IsEnabled = currentFlashcardIndex < flashcards.Count - 1;
-
         }
-
 
         private void FlashcardPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //if (AnswerText.Visibility == Visibility.Collapsed)
-            //{
-            //    AnswerText.Visibility = Visibility.Visible;
-            //    QuestionText.FontSize = 20;
-            //}
-            //else
-            //{
-            //    AnswerText.Visibility = Visibility.Collapsed;
-            //    QuestionText.FontSize = 24;
-            //}
             if (flashcards.Count > 0)
             {
                 // Flip the current card
@@ -171,11 +148,10 @@ namespace Paper
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow(user);
-            mainWindow.Show();
-            this.Close();
 
-            //Application.Current.MainWindow = mainWindow;
+            MySpaceWindow window = new MySpaceWindow(user);
+            window.Show();
+            this.Close();
         }
     }
 }

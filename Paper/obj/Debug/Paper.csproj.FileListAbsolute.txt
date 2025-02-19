@@ -94,3 +94,5 @@ C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\LoginWindow.g.cs
 C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\RegisterWindow.g.cs
 C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\LoginWindow.baml
 C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\RegisterWindow.baml
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\DocumentWindow.g.cs
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\DocumentWindow.baml
