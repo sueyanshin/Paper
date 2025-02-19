@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace Paper
@@ -119,7 +113,7 @@ namespace Paper
             card.Child = grid;
             card.MouseLeftButtonDown += (s, e) =>
             {
-                var detailWindow = new DetailChatWindow();
+                var detailWindow = new DetailChatWindow("");
                 detailWindow.Show();
                 this.Close();
             };
