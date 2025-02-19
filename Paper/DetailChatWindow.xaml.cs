@@ -22,10 +22,12 @@ namespace Paper
         private int currentFlashcardIndex = 0;
         private readonly GeminiService geminiService;
         private string pdfText;
+        private User user;
 
-        public DetailChatWindow(string filePath)
+        public DetailChatWindow(User user, string filePath)
         {
             InitializeComponent();
+            this.user = user;
             this.filePath = filePath;
             geminiService = new GeminiService();
             flashcards = new List<Flashcard>();
@@ -170,7 +172,7 @@ namespace Paper
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow();
+            MainWindow mainWindow = new MainWindow(user);
             mainWindow.Show();
             this.Close();
 

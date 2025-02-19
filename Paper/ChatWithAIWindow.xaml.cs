@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Paper.Models;
 using Paper.Services;
 
 namespace Paper
@@ -15,10 +16,12 @@ namespace Paper
     {
         private const string DefaultInputText = "Type your message...";
         private readonly ChatService chatService;
+        private User user;
 
-        public ChatWithAIWindow()
+        public ChatWithAIWindow(User user)
         {
             InitializeComponent();
+            this.user = user;
 
             // Initialize chat service with API key
             string apiKey = ConfigurationManager.AppSettings["GeminiApiKey"];
@@ -55,7 +58,7 @@ namespace Paper
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow(user);
             mainWindow.Show();
             this.Close();
         }
