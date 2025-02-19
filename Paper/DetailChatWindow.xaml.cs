@@ -12,11 +12,12 @@ namespace Paper
     {
         //private PdfViewer pdfViewer;
 
-
-        public DetailChatWindow()
+        private string filePath;
+        public DetailChatWindow(string filePath)
         {
             InitializeComponent();
-            LoadPdf("C:\\Users\\Acer\\Downloads\\kt.pdf");
+            this.filePath = filePath;
+            LoadPdf(filePath);
             Generate();
 
         }
@@ -40,7 +41,7 @@ namespace Paper
 
         private async void Generate()
         {
-            string pdfText = ExtractTextFromPdf("C:\\Users\\Acer\\Downloads\\kt.pdf");
+            string pdfText = ExtractTextFromPdf(filePath);
             GeminiService geminiService = new GeminiService();
 
             string summary = await geminiService.GetSummaryFromGemini(pdfText);

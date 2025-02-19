@@ -34,7 +34,7 @@ namespace Paper
         {
             if (!string.IsNullOrEmpty(selectedFilePath))
             {
-                var detailWindow = new DetailChatWindow();
+                var detailWindow = new DetailChatWindow(selectedFilePath);
                 detailWindow.Show();
                 this.Close();
             }
@@ -79,5 +79,14 @@ namespace Paper
             chatWithAIWindow.Show();
             this.Close();
         }
+
+        private void TabButton4(object sender, RoutedEventArgs e)
+        {
+            LoginWindow window = new LoginWindow();
+            window.Show();
+            this.Close();
+        }
+
+
     }
 }

@@ -90,3 +90,7 @@ C:\Users\Acer\source\repos\Paper\Paper\bin\Debug\UglyToad.PdfPig.Tokenization.pd
 C:\Users\Acer\source\repos\Paper\Paper\bin\Debug\UglyToad.PdfPig.Tokenization.xml
 C:\Users\Acer\source\repos\Paper\Paper\bin\Debug\UglyToad.PdfPig.Tokens.pdb
 C:\Users\Acer\source\repos\Paper\Paper\bin\Debug\UglyToad.PdfPig.Tokens.xml
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\LoginWindow.g.cs
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\RegisterWindow.g.cs
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\LoginWindow.baml
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\RegisterWindow.baml
