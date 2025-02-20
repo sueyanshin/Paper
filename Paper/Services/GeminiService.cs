@@ -139,7 +139,7 @@ namespace Paper.Services
                             {
                                 new
                                 {
-                                    text = $@"Generate 5 flashcards from this text. Format each flashcard as 'Q: question | A: answer'.
+                                    text = $@"Generate 8 flashcards from this text. Format each flashcard as 'Q: question | A: answer'.
                                     Make the questions test key concepts and understanding.
                                     Text: {pdfText}"
                                 }

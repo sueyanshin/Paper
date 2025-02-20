@@ -120,6 +120,7 @@ namespace Paper
             var messageText = new TextBlock
             {
                 Text = message,
+                FontSize = 18,
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = Brushes.White
             };
@@ -149,6 +150,7 @@ namespace Paper
             var messageText = new TextBlock
             {
                 Text = message,
+                FontSize = 18,
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#424242")
             };

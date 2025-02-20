@@ -105,7 +105,7 @@ namespace Paper.Services
                 string sql = @"SELECT Cid, FileName, Summary, CreatedAt 
                               FROM Contents 
                               WHERE UserId = @UserId 
-                              ORDER BY CreatedAt DESC";
+                              ORDER BY CreatedAt DESC ,Cid DESC";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
