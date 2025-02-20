@@ -23,7 +23,7 @@
             <Setter Property="Margin"
                     Value="0,5"/>
             <Setter Property="MaxWidth"
-                    Value="280"/>
+                    Value="600"/>
         </Style>
 
         <!-- User Message Style -->
@@ -48,6 +48,7 @@
                     Value="1"/>
             <Setter Property="HorizontalAlignment"
                     Value="Left"/>
+
         </Style>
         <!-- Button Style -->
         <Style TargetType="Button">

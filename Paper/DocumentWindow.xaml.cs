@@ -234,6 +234,7 @@ namespace Paper
             var messageText = new TextBlock
             {
                 Text = message,
+                FontSize = 16,
                 TextWrapping = TextWrapping.Wrap,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(
                     isUser ? "#FFFFFF" : "#000000"))
