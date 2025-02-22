@@ -97,3 +97,5 @@ C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\RegisterWindow.baml
 C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\DocumentWindow.g.cs
 C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\DocumentWindow.baml
 C:\Users\Acer\source\repos\Paper\Paper\bin\Debug\Markdown.Xaml.dll
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\ProfileWindow.g.cs
+C:\Users\Acer\source\repos\Paper\Paper\obj\Debug\ProfileWindow.baml

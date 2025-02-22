@@ -250,5 +250,85 @@ namespace Paper.Services
                 }
             }
         }
+
+        public async Task DeleteUser(int userId)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Get all content IDs for the user
+                        string getContentIdsSQL = "SELECT CId FROM Contents WHERE UserId = @UserId";
+                        List<int> contentIds = new List<int>();
+
+                        using (SqlCommand cmd = new SqlCommand(getContentIdsSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    contentIds.Add(reader.GetInt32(0));
+                                }
+                            }
+                        }
+
+                        // Delete flashcards for all user's contents
+                        string deleteFlashcardsSQL = "DELETE FROM Flashcards WHERE CId IN (SELECT CId FROM Contents WHERE UserId = @UserId)";
+                        using (SqlCommand cmd = new SqlCommand(deleteFlashcardsSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Get and delete PDF files
+                        string getFileNamesSQL = "SELECT FileName FROM Contents WHERE UserId = @UserId";
+                        using (SqlCommand cmd = new SqlCommand(getFileNamesSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    string fileName = reader.GetString(0);
+                                    string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads", fileName);
+                                    if (File.Exists(filePath))
+                                    {
+                                        File.Delete(filePath);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Delete contents
+                        string deleteContentsSQL = "DELETE FROM Contents WHERE UserId = @UserId";
+                        using (SqlCommand cmd = new SqlCommand(deleteContentsSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Delete user
+                        string deleteUserSQL = "DELETE FROM Users WHERE Uid = @UserId";
+                        using (SqlCommand cmd = new SqlCommand(deleteUserSQL, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@UserId", userId);
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
     }
 }
