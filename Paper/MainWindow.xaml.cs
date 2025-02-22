@@ -90,6 +90,10 @@ namespace Paper
             this.Close();
         }
 
-
+        private void ProfileIcon_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWindow = new ProfileWindow(user);
+            profileWindow.ShowDialog();
+        }
     }
 }
